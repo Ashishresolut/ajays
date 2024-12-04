@@ -34,6 +34,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@139.59.1.105 << 'EOF'
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
-            npm install
+            npm install -force
             pm2 restart ajays  # Or use your method to restart the app
           EOF
