@@ -18,12 +18,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa your_server_ip >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'  # Choose the Node.js version
+          node-version: '16'  # Choose the Node.js version
 
       - name: Install dependencies
         run: |
