@@ -10,29 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Step 2: Set up the SSH key
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
+          echo "$DO_API_TOKEN" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 139.59.1.105 >> ~/.ssh/known_hosts
 
+      # Step 3: Debug SSH setup (optional but useful for troubleshooting)
       - name: Debug SSH setup
         run: |
           ls -l ~/.ssh
           cat ~/.ssh/id_rsa
 
+      # Step 4: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
+      # Step 5: Deploy to DigitalOcean
       - name: Deploy to DigitalOcean
+        env:
+          NODE_ENV: production
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << EOF
+            set -e  # Exit immediately if a command exits with a non-zero status
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
             cd path/to/project
