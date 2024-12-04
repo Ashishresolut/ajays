@@ -28,6 +28,7 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no root@139.59.1.105 << 'EOF'
+            ls -alh
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
             npm install -force
