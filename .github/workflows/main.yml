@@ -27,6 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          ls -alh
           npm install -force
 
       - name: Deploy to DigitalOcean
