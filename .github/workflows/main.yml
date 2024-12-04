@@ -3,7 +3,7 @@ name: Deploy Node.js to DigitalOcean
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
+      - main
 
 jobs:
   deploy:
@@ -20,17 +20,27 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
+      - name: Debug SSH setup
+        run: |
+          ls -l ~/.ssh
+          cat ~/.ssh/id_rsa
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'  # Choose the Node.js version
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          cd path/to/your/project
+          npm install
 
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
-            ls -alh
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
-            npm install -force
-            pm2 restart ajays  # Or use your method to restart the app
+            cd path/to/project
+            npm install --force
+            pm2 restart ajays
           EOF
