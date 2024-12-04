@@ -1,42 +1,39 @@
-name: Node.js CI
+name: Deploy Node.js to DigitalOcean
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # Trigger the workflow on push to the main branch
 
 jobs:
-  build:
-    runs-on: self-hosted
-    
-    strategy:
-      matrix:
-        node-version: [14, 16, 18]  # You can add specific Node.js versions here
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa your_server_ip >> ~/.ssh/known_hosts
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '16'  # Choose the Node.js version
 
-      - name: Install dependencies and build frontend
+      - name: Install dependencies
         run: |
           npm install
-          cd frontend
-          npm install
-          npm run build
-          cd ..
 
-      - name: Stop and restart the app with PM2
+      - name: Deploy to DigitalOcean
         run: |
-          pm2 stop 0 || true  # Ensure it does not fail if PM2 is not running
-          pm2 start 0
-          pm2 save
-
-      - name: Restart Apache service
-        run: |
-          sudo service apache2 restart
+          ssh -o StrictHostKeyChecking=no root@139.59.1.105 << 'EOF'
+            cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
+            git pull origin main
+            npm install
+            pm2 restart ajays  # Or use your method to restart the app
+          EOF
