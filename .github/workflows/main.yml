@@ -18,29 +18,23 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$DO_API_TOKEN" | base64 --decode > ~/.ssh/id_rsa
+          echo "$DO_SSH_PRIVATE_KEY" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 139.59.1.105 >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
 
-      # Step 3: Debug SSH setup (optional but useful for troubleshooting)
+      # Step 3: Debug SSH setup (optional)
       - name: Debug SSH setup
         run: |
           ls -l ~/.ssh
-          cat ~/.ssh/id_rsa
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 "echo SSH connection successful!"
 
-      # Step 4: Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      # Step 5: Deploy to DigitalOcean
+      # Step 4: Deploy to DigitalOcean
       - name: Deploy to DigitalOcean
-        env:
-          NODE_ENV: production
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << EOF
-            set -e  # Exit immediately if a command exits with a non-zero status
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+            set -e  # Exit on error
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
             cd path/to/project
