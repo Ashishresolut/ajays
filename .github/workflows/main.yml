@@ -30,11 +30,6 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
-        run: |
-          cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-          npm install
-
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
