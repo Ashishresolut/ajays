@@ -18,7 +18,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/git@github.com:Ashishresolut/ajays.git
+          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
       - name: Debug SSH setup
         run: |
