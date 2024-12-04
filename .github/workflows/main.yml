@@ -18,7 +18,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINsIssP7AfUWWA4hOGYOqQ/sLpz49pJLLA7rwa+FQ073 ashish@resolutesolutions.in
+           ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
       - name: Debug SSH setup
         run: |
