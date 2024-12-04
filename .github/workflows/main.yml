@@ -1,0 +1,55 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [14, 16, 18]  # Add the Node.js versions you want to test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies and build frontend
+        run: |
+          npm install
+          cd frontend
+          npm install
+          npm run build
+          cd ..
+
+      - name: Set up DigitalOcean CLI
+        run: |
+          # Install Doctl (DigitalOcean CLI)
+          curl -sL https://github.com/digitalocean/doctl/releases/download/v1.88.0/doctl-1.88.0-linux-amd64.tar.gz | tar xz
+          sudo mv doctl /usr/local/bin
+
+          # Authenticate with DigitalOcean using the API token
+          export DO_API_TOKEN=${{ secrets.DO_API_TOKEN }}
+
+          # Test authentication by listing droplets (optional step)
+          doctl auth init -t $DO_API_TOKEN
+          doctl compute droplet list --no-header  # Optional: List droplets to test the API connection
+
+      - name: Stop and restart the app with PM2
+        run: |
+          pm2 stop 0 || true  # Ensure it does not fail if PM2 is not running
+          pm2 start 0
+          pm2 save
+
+      - name: Restart Apache service
+        run: |
+          sudo service apache2 restart
