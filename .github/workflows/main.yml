@@ -25,11 +25,6 @@ jobs:
         with:
           node-version: '23'  # Choose the Node.js version
 
-      - name: Install dependencies
-        run: |
-          cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-          npm install -force
-
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no root@139.59.1.105 << 'EOF'
