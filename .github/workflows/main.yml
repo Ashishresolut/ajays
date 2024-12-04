@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-
+    
     strategy:
       matrix:
-        node-version: [14, 16, 18]  # Add the Node.js versions you want to test
+        node-version: [14, 16, 18]  # You can add specific Node.js versions here
 
     steps:
       - name: Checkout code
@@ -30,19 +30,6 @@ jobs:
           npm install
           npm run build
           cd ..
-
-      - name: Set up DigitalOcean CLI
-        run: |
-          # Install Doctl (DigitalOcean CLI)
-          curl -sL https://github.com/digitalocean/doctl/releases/download/v1.88.0/doctl-1.88.0-linux-amd64.tar.gz | tar xz
-          sudo mv doctl /usr/local/bin
-
-          # Authenticate with DigitalOcean using the API token
-          export DO_API_TOKEN=${{ secrets.DO_API_TOKEN }}
-
-          # Test authentication by listing droplets (optional step)
-          doctl auth init -t $DO_API_TOKEN
-          doctl compute droplet list --no-header  # Optional: List droplets to test the API connection
 
       - name: Stop and restart the app with PM2
         run: |
