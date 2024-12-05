@@ -31,5 +31,10 @@ jobs:
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
             git pull origin main
             npm install --force
-            pm2 restart ajays
+            
+            # Kill the app if it's running
+            pm2 delete ajays || true
+
+            # Start or restart the app
+            pm2 start ajays.js --name ajays
           EOF
