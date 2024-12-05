@@ -24,7 +24,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '23'  # Choose the Node.js version
-
+      - name: Add SSH Key
+        run: echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
       - name: Deploy to DigitalOcean
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
