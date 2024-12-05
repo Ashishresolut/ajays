@@ -16,7 +16,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$DO_API_TOKEN" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
@@ -24,8 +24,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '23'  # Choose the Node.js version
-      - name: Add SSH Key
-        run: echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+
       - name: Deploy to DigitalOcean
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
@@ -34,4 +33,3 @@ jobs:
             npm install --force
             pm2 restart ajays
           EOF
-
