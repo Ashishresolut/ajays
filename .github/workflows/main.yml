@@ -1,29 +1,52 @@
-- name: Deploy to DigitalOcean
+name: Deploy Node.js to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH key
         run: |
-          ssh -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
-            set -e  # Exit immediately if any command fails
-            
-            echo "Navigating to the app directory..."
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23'
+
+      - name: Deploy to DigitalOcean
+        run: |
+          ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+            echo "Pulling the latest code from Git..."
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-            
-            echo "Initializing Git repository..."
+
+            # Ensure git repo is initialized
             git init
-            
-            echo "Configuring Git remote..."
-            if ! git remote | grep -q '^origin$'; then
-                git remote add origin git@github.com:Ashishresolut/ajays.git
-            fi
-            
-            echo "Fetching latest code..."
+            # git remote add origin git@github.com:Ashishresolut/github.com/Ashishresolut/ajays.git || true
+            git remote add origin git@github.com:Ashishresolut/ajays.git
+
+            # Fetch the latest changes
             git fetch origin
-            git reset --hard origin/main
+            git reset --hard origin main
             
-            echo "Installing dependencies..."
-            npm install --force
+            npm install --force  # Install dependencies
             
-            echo "Restarting the app..."
+            echo "Stopping the existing app if it's running..."
             pm2 delete ajays || true
+
+            echo "Starting the app..."
             pm2 start ajays.js --name ajays
-            
-            echo "Deployment completed!"
+
+            echo "Deployment complete!"
           EOF
