@@ -6,46 +6,39 @@ on:
       - main  # Trigger the workflow on push to the main branch
 
 jobs:
-  deploy-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code from the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Set up SSH key for accessing the server
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 139.59.1.105 >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
-      # Step 3: Set up Node.js environment for any local tasks
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Ensure this matches your app requirements
+          node-version: '23'  # Choose the Node.js version
 
-      # Step 4: Deploy to DigitalOcean
       - name: Deploy to DigitalOcean
-        env:
-          NODE_ENV: production
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
-            # Navigate to your application directory
+          ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+            echo "Pulling the latest code from Git..."
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-
-            # Pull the latest changes from the repository
-            git pull origin main
-
-            # Install updated dependencies
-            npm install --force
-
-            # Stop the application if running
+            git fetch origin
+            git reset --hard origin/main  # Ensure the latest code is synced with the repository
+            npm install --force  # Install dependencies
+            
+            echo "Stopping the existing app if it's running..."
             pm2 delete ajays || true
 
-            # Start or restart the application
-            pm2 start ajays.js --name ajays --update-env
+            echo "Starting the app..."
+            pm2 start ajays.js --name ajays
+
+            echo "Deployment complete!"
           EOF
