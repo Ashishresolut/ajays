@@ -30,15 +30,9 @@ jobs:
 
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html || exit
 
-            if [ ! -d .git ]; then
-              echo "Initializing Git repository..."
-              git init
-              git remote add origin git@github.com:Ashishresolut/ajays.git
-            fi
-
-            echo "Fetching and resetting to the latest code..."
-            git fetch origin
-            git reset --hard origin/main
+            echo "Cloning repository..."
+            rm -rf .git
+            git clone git@github.com:Ashishresolut/ajays.git .
 
             echo "Installing dependencies..."
             npm install
