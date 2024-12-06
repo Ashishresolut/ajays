@@ -23,26 +23,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'  # Choose the Node.js version
+          node-version: '20'  # Use a stable Node.js version
 
       - name: Deploy to DigitalOcean
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-            
-            # Pull latest changes from the repository
-            git fetch origin main
-            git reset --hard origin/main
-
-            # Install dependencies
+            git pull origin main
             npm install --force
             
-            # Build the application if required
-            npm run build || true
-
-            # Stop the app if it's running
-            pm2 delete ajays || true
-
-            # Start or restart the app
-            pm2 start ajays.js --name ajays
+            # Reload the application using PM2
+            if pm2 describe ajays > /dev/null; then
+              pm2 reload ajays
+            else
+              pm2 start ajays.js --name ajays
+            fi
           EOF
