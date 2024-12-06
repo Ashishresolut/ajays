@@ -84,7 +84,7 @@ const port = 3000;
 app.get('/api/data', (req, res) => {
     res.json({
         message: 'Hello, this is your GET API response!',
-        data: [1, 2, 3, 4, 5],
+        data: [1, 2, 3, 4, 5, 6, 7, 8, 9],
     });
 });
 
