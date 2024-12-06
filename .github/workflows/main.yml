@@ -33,7 +33,7 @@ jobs:
 
             # Ensure git repo is initialized
             git init
-            git remote add origin main git@github.com:root/var/www/ajaysapi.resolutesolutions.in.net/public_html || true
+            git remote add origin git@github.com:Ashishresolut/github.com/Ashishresolut/ajays.git || true
 
             # Fetch the latest changes
             git fetch origin
