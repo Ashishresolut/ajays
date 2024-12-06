@@ -33,7 +33,7 @@ jobs:
 
             # Ensure git repo is initialized
             git init
-            git remote add origin git@github.com:your-username/your-repository.git || true
+            git remote add origin git@github.com:Ashishresolut/https://github.com/Ashishresolut/ajays.git || true
 
             # Fetch the latest changes
             git fetch origin
