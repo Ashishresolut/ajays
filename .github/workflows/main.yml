@@ -29,10 +29,18 @@ jobs:
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
-            git pull origin main
+            
+            # Pull latest changes from the repository
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Install dependencies
             npm install --force
             
-            # Kill the app if it's running
+            # Build the application if required
+            npm run build || true
+
+            # Stop the app if it's running
             pm2 delete ajays || true
 
             # Start or restart the app
