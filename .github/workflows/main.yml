@@ -23,29 +23,28 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'
+          node-version: '20'
 
       - name: Deploy to DigitalOcean
         run: |
-          ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
-            echo "Pulling the latest code from Git..."
-            cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+            echo "Starting deployment..."
 
-            # Ensure git repo is initialized
-            git init
-            # git remote add origin git@github.com:Ashishresolut/github.com/Ashishresolut/ajays.git || true
-            git remote add origin git@github.com:Ashishresolut/ajays.git
+            cd /var/www/ajaysapi.resolutesolutions.in.net/public_html || exit
 
-            # Fetch the latest changes
+            # Initialize Git repo if not already done
+            git init || true
+            git remote add origin git@github.com:Ashishresolut/ajays.git || true
             git fetch origin
-            git reset --hard origin main
+            git reset --hard origin/main
             
-            npm install --force  # Install dependencies
-            
-            echo "Stopping the existing app if it's running..."
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Stopping existing app..."
             pm2 delete ajays || true
 
-            echo "Starting the app..."
+            echo "Starting app..."
             pm2 start ajays.js --name ajays
 
             echo "Deployment complete!"
