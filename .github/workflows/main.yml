@@ -3,7 +3,7 @@ name: Deploy Node.js to DigitalOcean
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
+      - main
 
 jobs:
   deploy:
@@ -23,15 +23,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'  # Choose the Node.js version
+          node-version: '23'
 
       - name: Deploy to DigitalOcean
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
             echo "Pulling the latest code from Git..."
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
+
+            # Ensure git repo is initialized
+            git init
+            git remote add origin git@github.com:your-username/your-repository.git || true
+
+            # Fetch the latest changes
             git fetch origin
-            git reset --hard origin/main  # Ensure the latest code is synced with the repository
+            git reset --hard origin/main
+            
             npm install --force  # Install dependencies
             
             echo "Stopping the existing app if it's running..."
