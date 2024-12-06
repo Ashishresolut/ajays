@@ -20,19 +20,19 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'  # Use a stable Node.js version
-
       - name: Deploy to DigitalOcean
         run: |
           ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
+
+            # Ensure the repo is updated
+            git reset --hard origin/main
             git pull origin main
+            
+            # Install dependencies
             npm install --force
             
-            # Reload the application using PM2
+            # Reload or start the app with PM2
             if pm2 describe ajays > /dev/null; then
               pm2 reload ajays
             else
