@@ -6,7 +6,7 @@ on:
       - main  # Trigger the workflow on push to the main branch
 
 jobs:
-  deploy:
+  deploy-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
