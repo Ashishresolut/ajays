@@ -10,32 +10,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Step 2: Set up SSH key for accessing the server
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 139.59.1.105 >> ~/.ssh/known_hosts
 
+      # Step 3: Set up Node.js environment for any local tasks
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Ensure this matches your app requirements
+
+      # Step 4: Deploy to DigitalOcean
       - name: Deploy to DigitalOcean
+        env:
+          NODE_ENV: production
         run: |
-          ssh -t -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@139.59.1.105 << 'EOF'
+            # Navigate to your application directory
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html
 
-            # Ensure the repo is updated
-            git reset --hard origin/main
+            # Pull the latest changes from the repository
             git pull origin main
-            
-            # Install dependencies
+
+            # Install updated dependencies
             npm install --force
-            
-            # Reload or start the app with PM2
-            if pm2 describe ajays > /dev/null; then
-              pm2 reload ajays
-            else
-              pm2 start ajays.js --name ajays
-            fi
+
+            # Stop the application if running
+            pm2 delete ajays || true
+
+            # Start or restart the application
+            pm2 start ajays.js --name ajays --update-env
           EOF
