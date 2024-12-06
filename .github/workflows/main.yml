@@ -1,5 +1,3 @@
-name: Deploy Node.js to DigitalOcean
-
 on:
   push:
     branches:
@@ -18,7 +16,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 139.59.1.105 >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -32,12 +30,10 @@ jobs:
 
             cd /var/www/ajaysapi.resolutesolutions.in.net/public_html || exit
 
-            # Initialize Git repo if not already done
-            git init || true
-            git remote add origin git@github.com:Ashishresolut/ajays.git || true
-            git fetch origin
-            git reset --hard origin/main
-            
+            echo "Cloning repository..."
+            rm -rf .git
+            git clone git@github.com:Ashishresolut/ajays.git .
+
             echo "Installing dependencies..."
             npm install
 
